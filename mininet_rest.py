@@ -29,6 +29,7 @@ class MininetRest(Bottle):
         self.route('/nodes/<node_name>/<intf_name>', method='POST', callback=self.post_intf)
         self.route('/hosts', method='GET', callback=self.get_hosts)
         self.route('/switches', method='GET', callback=self.get_switches)
+        self.route('/switch/<switch_name>', method='GET', callback=self.get_switch)
         self.route('/links', method='GET', callback=self.get_links)
 
     def get_nodes(self):
@@ -64,6 +65,14 @@ class MininetRest(Bottle):
 
     def get_switches(self):
         return {'switches': [s.name for s in self.net.switches]}
+
+    def get_switch(self, switch_name):
+        switch = self.net[switch_name]
+        return {
+            **self.get_node(switch_name),
+            'dpid': switch.dpid,
+            'opts': switch.opts
+        }
 
     def get_links(self):
         return {'links': [dict(name=l.intf1.node.name + '-' + l.intf2.node.name,
